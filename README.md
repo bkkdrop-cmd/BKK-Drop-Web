@@ -1,49 +1,30 @@
-# BKK DROP Fixed Consolidated V25
+# BKK DROP Final Fixed V26
 
-This is the consolidated fixed version for users currently still using V20.
+Strong fixed build.
 
-Included fixes and updates after V20:
-- Cleaner, stable, luxury-minimal UI
-- Improved panel spacing for desktop and mobile
-- Header/menu shadow fixed
-- Mobile-friendly menu above the page header
-- Billing menu fixed and visible
-- Housing booking fix
-- Updated BKK DROP logo
-- Tambah Barang updated:
-  - Upload Foto Resi changed to Upload Foto Barang
-  - Added Nomor Resi field
-  - nomorResi saved into each item
-  - Customer/admin can see and edit Nomor Resi
+Fixed:
+- Tambah Barang now says Upload Foto Barang, not Upload Foto Resi.
+- Added Nomor Resi field in Tambah Barang.
+- nomorResi is saved into each item.
+- Nomor Resi appears in item view and edit modal.
+- Customer/admin can edit Nomor Resi.
+- Stronger panel separation so cards do not look attached.
+- UI is slightly more pink, elegant, and clean.
+- Mobile modal layout is improved.
 
-Main modules included:
-- Warehouse Page
-- Kirim Barang
-- Housing
-- Billing / Invoice
-- Customer account management
-- Slot management
-- Stock/item edit and delete
-- Admin/customer shipment request flow
-- Admin received-item photo upload
-- Customer uploaded item photo
-- Nomor Resi
+Important update instruction:
+Replace ALL these files in GitHub:
+- index.html
+- styles.css
+- app.js
+- config.js
+- bkkdrop-logo-transparent.png
 
-How to update from V20:
-1. Extract this ZIP.
-2. Replace these files in GitHub:
-   - index.html
-   - styles.css
-   - app.js
-   - config.js
-   - bkkdrop-logo-transparent.png
-3. Commit changes.
-4. Wait for GitHub Pages/Netlify redeploy.
-5. Hard refresh your website with Ctrl + Shift + R or open in incognito.
-
-Optional:
-- Re-import bkk-drop-firebase-demo-data.json only if you want the demo database structure refreshed.
-- If you already have real user data, do not re-import the demo JSON because it may overwrite existing data.
+After commit:
+- Wait for redeploy.
+- Open the site in incognito/private mode first.
+- Or hard refresh with Ctrl + Shift + R.
+- On phone, close browser tab and reopen, or clear website data/cache.
 
 Demo login:
 - admin / admin123
