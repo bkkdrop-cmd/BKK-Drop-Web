@@ -4355,3 +4355,19 @@ textarea:focus {
     padding-right: 16px !important;
   }
 }
+
+
+/* =========================================================
+   STARTUP LOGIN FIX V27
+   ========================================================= */
+.notice-error {
+  background: #ffe4e6 !important;
+  color: #be123c !important;
+  border: 1px solid #fecdd3 !important;
+}
+
+.notice-warning {
+  background: #fff7ed !important;
+  color: #9a3412 !important;
+  border: 1px solid #fed7aa !important;
+}

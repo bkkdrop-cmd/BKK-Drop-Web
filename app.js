@@ -1,3 +1,51 @@
+
+/* =========================================================
+   STARTUP SAFETY GUARD V27
+   Keeps login usable and reports real loading errors.
+   ========================================================= */
+
+window.addEventListener("error", (event) => {
+  console.error("BKK DROP startup error:", event.error || event.message);
+  
+setTimeout(() => {
+  const loginBtn = document.getElementById("loginBtn");
+  const status = document.getElementById("firebaseStatus");
+  if (loginBtn && loginBtn.disabled) {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Masuk";
+    if (status && status.textContent.includes("Mengecek")) {
+      status.textContent = "Firebase belum selesai loading. Kamu tetap bisa coba login. Jika gagal, cek Firebase rules/config.";
+      status.className = "notice notice-warning";
+    }
+  }
+}, 6000);
+
+const status = document.getElementById("firebaseStatus");
+  const loginBtn = document.getElementById("loginBtn");
+  if (status) {
+    status.textContent = `App error: ${event.message || "Unknown error"}. Please check console.`;
+    status.className = "notice notice-error";
+  }
+  if (loginBtn) {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Masuk";
+  }
+});
+
+window.addEventListener("unhandledrejection", (event) => {
+  console.error("BKK DROP unhandled promise:", event.reason);
+  const status = document.getElementById("firebaseStatus");
+  const loginBtn = document.getElementById("loginBtn");
+  if (status) {
+    status.textContent = `Firebase/App error: ${event.reason?.message || event.reason || "Unknown error"}`;
+    status.className = "notice notice-error";
+  }
+  if (loginBtn) {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Masuk";
+  }
+});
+
 import { firebaseConfig, cloudinaryConfig, appOptions } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
@@ -230,7 +278,7 @@ function logout() {
   $("adminViewBtn").classList.add("hidden");
   $("loginUsername").value = "";
   $("loginPassword").value = "";
-  $("mainMenuRibbon")?.classList.add("hidden");
+  document.getElementById("mainMenuRibbon")?.classList.add("hidden");
 }
 
 function restoreSession() {
@@ -2969,3 +3017,22 @@ document.addEventListener("keydown", (e) => {
 });
 
 start();
+
+
+function safeRenderApp() {
+  try {
+    renderApp();
+  } catch (error) {
+    console.error("Render error:", error);
+    const status = document.getElementById("firebaseStatus");
+    if (status) {
+      status.textContent = `Render error: ${error.message}`;
+      status.className = "notice notice-error";
+    }
+  }
+}
+
+
+/* V27 critical global fallbacks */
+window.openAddItemModal = typeof openAddItemModal !== "undefined" ? openAddItemModal : window.openAddItemModal;
+window.addItemFromForm = typeof addItemFromForm !== "undefined" ? addItemFromForm : window.addItemFromForm;

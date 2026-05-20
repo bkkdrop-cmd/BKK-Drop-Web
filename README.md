@@ -1,30 +1,31 @@
-# BKK DROP Final Fixed V26
+# BKK DROP Startup Login Fix V27
 
-Strong fixed build.
+This version fixes the issue where the app stays stuck at:
+"Mengecek koneksi Firebase..."
 
-Fixed:
-- Tambah Barang now says Upload Foto Barang, not Upload Foto Resi.
-- Added Nomor Resi field in Tambah Barang.
-- nomorResi is saved into each item.
-- Nomor Resi appears in item view and edit modal.
-- Customer/admin can edit Nomor Resi.
-- Stronger panel separation so cards do not look attached.
-- UI is slightly more pink, elegant, and clean.
-- Mobile modal layout is improved.
+What changed:
+- Added startup error guard.
+- Login button no longer stays disabled forever.
+- Real Firebase/App error will be shown on the login page.
+- Added cache-busting for app.js and styles.css.
+- Keeps V26 updates:
+  - Upload Foto Barang
+  - Nomor Resi
+  - Latest logo
+  - Improved UI spacing
 
-Important update instruction:
-Replace ALL these files in GitHub:
+Replace these files in GitHub:
 - index.html
 - styles.css
 - app.js
 - config.js
 - bkkdrop-logo-transparent.png
 
-After commit:
-- Wait for redeploy.
-- Open the site in incognito/private mode first.
-- Or hard refresh with Ctrl + Shift + R.
-- On phone, close browser tab and reopen, or clear website data/cache.
+After uploading:
+1. Commit changes.
+2. Wait for redeploy.
+3. Open the website in incognito/private mode.
+4. If it still fails, send the exact error message shown under login.
 
 Demo login:
 - admin / admin123
