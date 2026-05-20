@@ -1,21 +1,29 @@
-# BKK DROP UI Mobile V2
+# BKK DROP Billing V17
 
-This version keeps the same Firebase logic but improves the interface.
+New integrated module:
+- Billing / Invoice page for admin and customers.
+- Admin can create invoices for customers.
+- Invoice supports line items, qty, unit price, discount, extra fee, total.
+- Customer can view invoice and upload payment proof.
+- Admin can view payment proof and update invoice status.
+- Admin can mark invoice as unpaid, paid, cancelled, or delete invoice.
+- Admin can export invoice list as CSV.
 
-Improvements:
-- Cleaner lungking page
-- Better mobile layout
-- Better tablet/laptop responsiveness
-- Larger buttons and form fields for phone use
-- Improved cards, modals, image grid, and spacing
+Menus added:
+Admin:
+- Billing
 
-Upload/replace these files in GitHub:
+Customer:
+- Billing
+
+Replace these files in GitHub:
 - index.html
 - styles.css
 - app.js
 - config.js
 
-Your Firebase config is already inside config.js.
+Optional:
+- Re-import bkk-drop-firebase-demo-data.json to initialize invoices node.
 
 Demo login:
 - admin / admin123
