@@ -299,7 +299,7 @@ async function uploadImageToCloudinary(file, userId, itemId) {
   };
 }
 
-async function handleImageUpload(itemId, inputElement) {
+async function handleImageUpload(itemId, inputElement, source = "customer") {
   const file = inputElement.files?.[0];
   if (!file) return;
 
@@ -307,17 +307,34 @@ async function handleImageUpload(itemId, inputElement) {
   if (!item) return;
 
   const imageCount = Object.keys(item.images || {}).length;
-  if (imageCount >= 5) {
-    toast("Maksimal 5 foto per barang.");
+  if (imageCount >= 8) {
+    toast("Maksimal 8 foto per barang.");
     return;
   }
 
   try {
-    toast("Mengompres foto...");
+    toast(source === "admin_received" ? "Admin mengupload foto barang diterima..." : "Mengompres foto...");
     const uploaded = await uploadImageToCloudinary(file, item.userId, itemId);
     const imageRef = push(ref(database, `items/${itemId}/images`));
-    await set(imageRef, uploaded);
-    toast(`Foto berhasil. ${formatBytes(uploaded.originalSize)} → ${formatBytes(uploaded.compressedSize)}`);
+
+    await set(imageRef, {
+      ...uploaded,
+      source,
+      uploadedBy: currentUser?.id || "unknown",
+      uploadedByRole: currentUser?.role || "customer"
+    });
+
+    if (source === "admin_received") {
+      await update(ref(database, `items/${itemId}`), {
+        status: "arrived_warehouse",
+        photoVerificationStatus: "verified",
+        photoVerifiedAt: new Date().toISOString(),
+        photoVerifiedBy: currentUser?.id || "admin"
+      });
+      toast(`Foto barang diterima berhasil diupload. ${formatBytes(uploaded.originalSize)} → ${formatBytes(uploaded.compressedSize)}`);
+    } else {
+      toast(`Foto berhasil. ${formatBytes(uploaded.originalSize)} → ${formatBytes(uploaded.compressedSize)}`);
+    }
   } catch (error) {
     console.error(error);
     toast(error.message || "Upload gagal.");
@@ -454,6 +471,12 @@ async function updateItemStatus(itemId, status) {
 }
 
 
+
+function triggerAdminReceivedPhotoUpload(itemId) {
+  const input = document.getElementById(`adminReceivedPhotoInput_${itemId}`);
+  if (input) input.click();
+}
+
 async function verifyItemPhoto(itemId) {
   const item = db.items[itemId];
   if (!item) {
@@ -525,26 +548,37 @@ function openAdminPhotoReview(itemId) {
       </div>
     </div>
 
+    <div class="admin-received-upload-box">
+      <div>
+        <strong>Upload Foto Barang yang Diterima Admin</strong>
+        <p class="muted small">Gunakan ini untuk upload foto real barang saat sudah masuk warehouse. Customer akan melihat foto ini di Gudang Saya.</p>
+      </div>
+      <button class="btn btn-accent" onclick="window.triggerAdminReceivedPhotoUpload('${itemId}')">+ Upload Foto Diterima</button>
+      <input id="adminReceivedPhotoInput_${itemId}" type="file" accept="image/*" style="display:none" onchange="window.handleImageUpload('${itemId}', this, 'admin_received')" />
+    </div>
+
     <div class="admin-photo-grid">
       ${images.length ? images.map(([imageId, image]) => `
-        <div class="admin-photo-card">
+        <div class="admin-photo-card ${image.source === "admin_received" ? "received-photo-card" : ""}">
           <img src="${escapeHtml(image.url)}" alt="Product photo" />
           <div class="admin-photo-meta">
+            <span class="photo-source-badge ${image.source === "admin_received" ? "admin-source" : "customer-source"}">
+              ${image.source === "admin_received" ? "Foto Diterima Admin" : "Foto Customer"}
+            </span>
             <span>${escapeHtml(formatBytes(image.compressedSize || image.originalSize || 0))}</span>
             <button class="btn btn-danger" onclick="window.deleteImageRecord('${itemId}', '${imageId}')">Hapus Foto</button>
           </div>
         </div>
-      `).join("") : `<div class="empty">Belum ada foto yang diupload customer.</div>`}
+      `).join("") : `<div class="empty">Belum ada foto. Admin bisa upload foto barang diterima di atas.</div>`}
     </div>
 
     <div class="review-actions">
-      <button class="btn btn-green" onclick="window.verifyItemPhoto('${itemId}')">Konfirmasi Foto & Barang Diterima</button>
+      <button class="btn btn-green" onclick="window.verifyItemPhoto('${itemId}')">Konfirmasi Barang Diterima</button>
       <button class="btn btn-danger" onclick="window.unverifyItemPhoto('${itemId}')">Batalkan Verifikasi</button>
     </div>
 
     <p class="muted small">
-      Saat admin klik konfirmasi, status foto menjadi terverifikasi dan status barang akan otomatis menjadi “Sudah Masuk Warehouse”
-      jika sebelumnya masih “Menunggu Barang Datang”.
+      Jika admin upload foto diterima, status barang otomatis menjadi “Sudah Masuk Warehouse” dan foto akan muncul di akun customer.
     </p>
   `);
 }
@@ -776,9 +810,11 @@ function renderSlotCard(slot, myBookings = []) {
 
 function renderItemCard(item) {
   const images = Object.entries(item.images || {});
+  const receivedImages = images.filter(([id, image]) => image.source === "admin_received");
+  const customerImages = images.filter(([id, image]) => image.source !== "admin_received");
   const slotName = db.slots[item.slotId]?.title || "No slot";
   const statusText = statusLabels[item.status] || item.status;
-  const firstImage = images[0]?.[1]?.url || "";
+  const firstImage = receivedImages[0]?.[1]?.url || images[0]?.[1]?.url || "";
   const isPhotoVerified = item.photoVerificationStatus === "verified";
 
   return `
@@ -800,20 +836,36 @@ function renderItemCard(item) {
           <div><span>Kategori</span><strong>${escapeHtml(item.category || "-")}</strong></div>
           <div><span>Qty</span><strong>${escapeHtml(item.quantity || 0)}</strong></div>
           <div><span>Estimasi</span><strong>${escapeHtml(item.estimatedPrice || 0)} THB</strong></div>
-          <div><span>Foto</span><strong>${images.length}/5</strong></div>
+          <div><span>Foto</span><strong>${images.length}/8</strong></div>
         </div>
 
         ${item.notes ? `<div class="inventory-note">${escapeHtml(item.notes)}</div>` : ""}
         ${item.productLink ? `<a class="inventory-link" href="${escapeHtml(item.productLink)}" target="_blank">Buka link produk</a>` : ""}
 
-        ${images.length > 1 ? `
-          <div class="image-strip">
-            ${images.slice(1, 6).map(([imageId, image]) => `
-              <div class="mini-image">
-                <img src="${escapeHtml(image.url)}" alt="Product image" />
-                <button onclick="window.deleteImageRecord('${item.id}', '${imageId}')">×</button>
-              </div>
-            `).join("")}
+        ${receivedImages.length ? `
+          <div class="received-photo-section">
+            <div class="received-photo-title">Foto Barang Diterima Admin</div>
+            <div class="image-strip">
+              ${receivedImages.map(([imageId, image]) => `
+                <div class="mini-image received-mini">
+                  <img src="${escapeHtml(image.url)}" alt="Received product image" />
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        ` : ""}
+
+        ${customerImages.length ? `
+          <div class="customer-photo-section">
+            <div class="received-photo-title">Foto Referensi Customer</div>
+            <div class="image-strip">
+              ${customerImages.slice(0, 6).map(([imageId, image]) => `
+                <div class="mini-image">
+                  <img src="${escapeHtml(image.url)}" alt="Product image" />
+                  <button onclick="window.deleteImageRecord('${item.id}', '${imageId}')">×</button>
+                </div>
+              `).join("")}
+            </div>
           </div>
         ` : ""}
       </div>
@@ -1040,6 +1092,7 @@ window.createUserFromForm = createUserFromForm;
 window.createSlotFromForm = createSlotFromForm;
 window.updateBookingStatus = updateBookingStatus;
 window.updateItemStatus = updateItemStatus;
+window.triggerAdminReceivedPhotoUpload = triggerAdminReceivedPhotoUpload;
 window.verifyItemPhoto = verifyItemPhoto;
 window.unverifyItemPhoto = unverifyItemPhoto;
 window.openAdminPhotoReview = openAdminPhotoReview;

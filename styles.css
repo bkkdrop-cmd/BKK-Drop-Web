@@ -1230,3 +1230,99 @@ input, select, textarea {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* =========================================================
+   BKK DROP ADMIN RECEIVED PHOTO V5
+   Admin can upload actual received-item photos for customers
+   ========================================================= */
+
+.admin-received-upload-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  background: linear-gradient(135deg, #fff7ed, #ffffff);
+  border: 1px solid #fed7aa;
+  border-radius: 18px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.admin-received-upload-box strong {
+  display: block;
+  font-size: 15px;
+}
+
+.admin-received-upload-box p {
+  margin: 4px 0 0;
+}
+
+.received-photo-card {
+  border-color: #bbf7d0;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.08);
+}
+
+.photo-source-badge {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 5px 9px;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+}
+
+.photo-source-badge.admin-source {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.photo-source-badge.customer-source {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.received-photo-section,
+.customer-photo-section {
+  display: grid;
+  gap: 6px;
+}
+
+.received-photo-title {
+  color: #3f3f46;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.received-mini {
+  border-color: #86efac;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.received-mini::after {
+  content: "✓";
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #16a34a;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+@media (max-width: 680px) {
+  .admin-received-upload-box {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-received-upload-box .btn {
+    width: 100%;
+  }
+}
